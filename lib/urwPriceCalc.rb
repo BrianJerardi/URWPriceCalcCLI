@@ -1,3 +1,4 @@
+
 require "rubygems"
 require "active_record"
 require "active_support"
@@ -9,6 +10,7 @@ module URWPriceCalc
 	def destroy
 		Models::Quality.destroy_all
 		Models::ItemPrice.destroy_all
+		Models::Inventory_Item.destroy_all
 	end
 
 	def addQuality(description, multiplier)
@@ -35,16 +37,17 @@ module URWPriceCalc
 
 	def addInventory(itemQuality, itemName)
 		puts "Adding: #{itemQuality} #{itemName}"
-		puts Models::Quality.find_by_description(itemQuality).id
-		puts Models::ItemPrice.find_by_name(itemName).id
 		Models::Inventory_Item.create(
 			:quality_id => Models::Quality.find_by_description(itemQuality).id,
 			:itemPrice_id => Models::ItemPrice.find_by_name(itemName).id)	
 	end
 
 	def showInventory
-		"Showing Inventory PLACEHOLDER" 
-		Models::Inventory_Item.find(:all).map(&:to_s)
+		items = Models::Inventory_Item.find(:all, 
+						    :group => "quality_id,itemPrice_id"
+						   ).map(&:to_s)
+	#	counts = Models::Inventory_Item.count(:all,
+	#					      :group => "quality_id,itemPrice_id")
 	end		
 
 	def process_command(cmd)
